@@ -5,14 +5,31 @@ import "./App.css";
 function App() {
   const [data, setData] = useState(null);
   const [address, setaddress] = useState(null);
+  const [metaipfs, setmetaipfs] = useState(null);
+  const [name, setname] = useState(null);
+  const [desc, setdesc] = useState(null);
 
-  function getdata(event) {
+  function sdata(event) {
     setData(event.target.value);
+
+    console.log(event.target.value);
+  }
+  function sname(event) {
+    setname(event.target.value);
+
+    console.log(event.target.value);
+  }
+
+  function sdesc(event) {
+    setdesc(event.target.value);
+
     console.log(event.target.value);
   }
 
   function submit() {
     console.log(data);
+    console.log(name);
+    console.log(desc);
   }
 
   function getaddress(event) {
@@ -31,8 +48,8 @@ function App() {
 
       // Adding body or contents to send
       body: JSON.stringify({
-        name: "My Art",
-        description: "This is my custom art piece",
+        name: name,
+        description: desc,
         file_uri: data,
       }),
 
@@ -46,6 +63,7 @@ function App() {
 
       // Displaying results to console
       .then((response) => {
+        setmetaipfs(response.metadata_ipfs_uri);
         console.log(response);
       })
 
@@ -61,7 +79,7 @@ function App() {
       body: JSON.stringify({
         chain: "polygon",
         contract_address: "0xd1c3ae3aed7786394bdb5a42a81f0b0fb28f7983",
-        metadata_uri: "ipfs://QmTz7dGHvXghNuh3V64QBwHPXva4chpMR7frpfxCaxvhd4",
+        metadata_uri: metaipfs,
         mint_to_address: address,
       }),
 
@@ -86,15 +104,26 @@ function App() {
       <div>
         Livestream minter
         <br></br>
-        <input type="text" onChange={getdata} />
         <br></br>
-        <button onClick={submit}>Submit recording link </button>
+        IPFS Link &nbsp;&nbsp;
+        <input type="text" onChange={sdata} />
+        <br></br>
+        Name of NFT &nbsp;&nbsp;
+        <input type="text" onChange={sname} />
+        <br></br>
+        Description of NFT &nbsp;&nbsp;
+        <input type="text" onChange={sdesc} />
+        <br></br>
+        <br></br>
+        <button onClick={submit}>Submit </button>
         <br></br>
         <button onClick={uplodmetadata}>Upload Metadata </button>
+        <br></br>
         <br></br>
         <input type="text" onChange={getaddress} />
         <br></br>
         <button onClick={submitaddress}>Submit Address</button>
+        <br></br>
         <br></br>
         <button onClick={mintnft}>Mint NFT </button>
       </div>
