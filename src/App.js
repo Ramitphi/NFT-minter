@@ -115,7 +115,7 @@ function App() {
         <input type="text" onChange={sdesc} />
         <br></br>
         <br></br>
-        <button onClick={submit}>Submit Livestream Recording link</button>
+        <button onClick={submit}>Submit Metadata</button>
         <br></br>
         <button onClick={uplodmetadata}>Upload Metadata </button>
         <br></br>
