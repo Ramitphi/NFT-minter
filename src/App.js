@@ -88,7 +88,7 @@ function App() {
         <br></br>
         <input type="text" onChange={getdata} />
         <br></br>
-        <button onClick={submit}>Submit Metadata</button>
+        <button onClick={submit}>Submit Livestream Recording link</button>
         <br></br>
         <button onClick={uplodmetadata}>Upload Metadata </button>
         <br></br>
