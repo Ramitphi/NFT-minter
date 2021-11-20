@@ -1,5 +1,6 @@
-import logo from "./logo.svg";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form"
+import {UploadingFile} from "./file_upload";
 import "./App.css";
 
 function App() {
@@ -8,12 +9,13 @@ function App() {
   const [metaipfs, setmetaipfs] = useState(null);
   const [name, setname] = useState(null);
   const [desc, setdesc] = useState(null);
+  const {register, handleSubmit} = useForm();
 
   function sdata(event) {
     setData(event.target.value);
-
     console.log(event.target.value);
   }
+
   function sname(event) {
     setname(event.target.value);
 
@@ -99,11 +101,24 @@ function App() {
       .catch((err) => console.error(err));
   };
 
+  function onSubmit(data){
+    UploadingFile(data);
+  }
+
   return (
     <div className="App-header">
       <div>
         Livestream minter
         <br></br>
+        <br></br>
+        Choose a File to submit
+        <br></br>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <input required ref={register} type="file" name = "uploadedfile"/>
+          <button> Submit </button>
+        </form>
+
         <br></br>
         IPFS Link &nbsp;&nbsp;
         <input type="text" onChange={sdata} />
