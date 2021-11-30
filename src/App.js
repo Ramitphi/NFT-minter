@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import {UploadingFile} from "./file_upload";
 import "./App.css";
 import Header from "./Components/Header";
+import { useHistory } from "react-router-dom";
 
 
 
@@ -54,6 +55,12 @@ function App() {
   const [name, setname] = useState(null);
   const [desc, setdesc] = useState(null);
   const {register, handleSubmit} = useForm();
+
+  const history = useHistory();
+  
+  const handleRoute = () =>{ 
+    history.push("https://metamask.io/");
+  }
 
   function sdata(event) {
     setData(event.target.value);
@@ -253,9 +260,9 @@ function App() {
         </h3> 
         <br/>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form>
           <input required ref={register} type="file" name = "uploadedfile"/>
-          <Button variant="contained" component="span">
+          <Button variant="contained" component="span" onClick={handleSubmit(onSubmit)}>
           Submit
         </Button>
         </form>
@@ -299,10 +306,17 @@ function App() {
         <br></br>
 
         <Grid container spacing={3}>
-        <Grid item xs={1} md={2}></Grid>
         <Grid item xs={1} md={4}>
-        <Input placeholder="Upload Data" onChange={getaddress}/>
+        <Input placeholder="Enter Wallet Address" onChange={getaddress}/>
 
+        </Grid>
+        <Grid item xs={1} md={1}></Grid>
+        <Grid item xs={1} md={4}>
+        <a href="https://metamask.io/">
+        <Button variant="contained" size="medium" onClick={handleRoute}>
+          Create Metamask Wallet
+        </Button>
+        </a>
         </Grid>
         </Grid>
 
