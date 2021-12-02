@@ -1,30 +1,28 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form"
-import {UploadingFile} from "./file_upload";
+// import { UploadingFile } from "./file_upload";
 import "./App.css";
 import Header from "./Components/Header";
 
-
-
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Particles from "react-tsparticles";
 
-import { UploadOutlined } from '@ant-design/icons';
-import { Form, Input, InputNumber} from 'antd';
-import { MDBContainer, MDBRow, MDBCol, MDBBtn, MDBIcon } from 'mdbreact';
+import { Form, Input, InputNumber } from 'antd';
+
+const fs = require('fs');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const layout = {
   labelCol: {
@@ -43,17 +41,15 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 
-
-
-
-
 function App() {
   const [data, setData] = useState(null);
   const [address, setaddress] = useState(null);
   const [metaipfs, setmetaipfs] = useState(null);
   const [name, setname] = useState(null);
   const [desc, setdesc] = useState(null);
-  const {register, handleSubmit} = useForm();
+  const { register, handleSubmit } = useForm();
+  const [ipfslink, setipfs] = useState(null);
+
 
   function sdata(event) {
     setData(event.target.value);
@@ -87,6 +83,62 @@ function App() {
     console.log(address);
   }
 
+  // Uploading File and Notiying
+
+  const CustomToastWithLink = () => (
+    <div>
+      <a href="https://opensea.io/collection/nft-minter-1">View it here.</a>
+    </div>
+  );
+
+  const notify0 = () => toast("Please wait.");
+  const notify = () => toast("Please select a file to upload.");
+  const notify1 = () => toast("The IPFS link is successfully retrieved.");
+  const notify2 = () => toast("Metadata successfully uploaded.");
+  const notify3 = () => toast("NFT mint was successful.");
+  const notify4 = () => toast.info(CustomToastWithLink);
+
+
+
+  function UploadingFile(data) {
+    notify0();
+    const form = new FormData();
+    form.append("file", data.uploadedfile[0]);
+
+    let ipfs_url;
+    const options = {
+      method: 'POST',
+      body: form,
+      "headers": {
+        "Authorization": "d53eb35f-0b79-4a84-832c-8eb4d0086600",
+      }
+    };
+
+    fetch("https://api.nftport.xyz/v0/files", options)
+      .then(response => response.json())
+      .then((response) => {
+
+
+        if (response.ipfs_url) {
+
+          ipfs_url = response.ipfs_url;
+          setipfs(ipfs_url);
+          setData(ipfs_url)
+          notify1();
+          return ipfs_url;
+
+        } else {
+          notify();
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
+  }
+
+
+
   const uplodmetadata = async () => {
     fetch("https://api.nftport.xyz/ipfs_upload_metadata", {
       // Adding method type
@@ -102,7 +154,7 @@ function App() {
       // Adding headers to the request
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        Authorization: "82d8af12-45c8-40d0-aced-2eac36fe0a3c",
+        Authorization: "d53eb35f-0b79-4a84-832c-8eb4d0086600",
       },
     })
       .then((response) => response.json())
@@ -110,6 +162,7 @@ function App() {
       // Displaying results to console
       .then((response) => {
         setmetaipfs(response.metadata_ipfs_uri);
+        notify2();
         console.log(response);
       })
 
@@ -124,7 +177,7 @@ function App() {
       // Adding body or contents to send
       body: JSON.stringify({
         chain: "polygon",
-        contract_address: "0xd1c3ae3aed7786394bdb5a42a81f0b0fb28f7983",
+        contract_address: "0x04d4621A026b9E6483904Cd2E63684314a77987F",
         metadata_uri: metaipfs,
         mint_to_address: address,
       }),
@@ -132,7 +185,7 @@ function App() {
       // Adding headers to the request
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        Authorization: "82d8af12-45c8-40d0-aced-2eac36fe0a3c",
+        Authorization: "d53eb35f-0b79-4a84-832c-8eb4d0086600",
       },
     })
       .then((response) => response.json())
@@ -140,19 +193,24 @@ function App() {
       // Displaying results to console
       .then((response) => {
         console.log(response);
+        notify3();
+        notify4();
       })
 
       .catch((err) => console.error(err));
   };
 
-  function onSubmit(data){
+  function onSubmit(data) {
     UploadingFile(data);
   }
 
   return (
 
     <>
-    <Particles
+
+      // Background Particles Rendering
+
+      <Particles
         id="tsparticles"
         options={{
           background: {
@@ -168,7 +226,7 @@ function App() {
                 enable: true,
                 mode: "push",
               },
-              
+
               resize: true,
             },
             modes: {
@@ -230,254 +288,132 @@ function App() {
           detectRetina: true,
         }}
       />
-      <Header/>
+
+      <Header />  // Rendering the Header component for the application
+
+      // Rendering the complete form
+
       <div className="App-header">
-      <Grid container spacing={2}>
-      <Grid item xs={1} md={3}>
-      </Grid>
-      <Grid item xs={1} md={6}>
-      <Card>
-      <CardActionArea>
-      <Grid container spacing={2}>
-      <Grid item xs={1} md={3}>
-      </Grid>
-      <Grid item xs={1} md={8}>
-
-      <CardContent>
-        <div style={{fontSize: "18px",
-        color: "white"
-        }}>
-      
-        <h3>
-        Choose a File to submit
-        </h3> 
-        <br/>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input required ref={register} type="file" name = "uploadedfile"/>
-          <Button variant="contained" component="span">
-          Submit
-        </Button>
-        </form>
-
-        <br></br>
-        <h3>IPFS Link</h3> &nbsp;&nbsp;
-        <Input placeholder="IPFS Link" onChange={sdata}/>
-        <br></br>        <br/>
-
-        <h3>Name of NFT </h3>&nbsp;&nbsp;
-        <Input placeholder="Name of NFT" onChange={sname}/>
-        <br></br>        <br/>
-
-        <h3>Description of NFT </h3>&nbsp;&nbsp;
-        <Input placeholder="Description" onChange={sdesc}/>
-
-        <br></br>        <br/>
-
-        <br></br>
-        <Grid container spacing={3}>
-        <Grid item xs={1} md={4}>
-        {/* <Button type="primary" shape="round" icon={<UploadOutlined />} size={"large"}>
-          Submit Metadata
-        </Button> */}
-        <Button variant="contained" size="medium" onClick={submit}>
-          Submit Metadata
-        </Button>
-        </Grid>
-        <Grid item xs={1} md={1}></Grid>
-        <Grid item xs={1} md={4}>
-        {/* <Button type="primary" shape="round" icon={<UploadOutlined />} size={"large"}>
-          Upload Metadata
-        </Button> */}
-        <Button variant="contained" size="medium" onClick={uplodmetadata}>
-          Upload Metadata
-        </Button>
-        </Grid>
-        </Grid>
-     <br/>
-
-        <br></br>
-
-        <Grid container spacing={3}>
-        <Grid item xs={1} md={2}></Grid>
-        <Grid item xs={1} md={4}>
-        <Input placeholder="Upload Data" onChange={getaddress}/>
-
-        </Grid>
-        </Grid>
-
-        <br></br>        <br/>
-        <Grid container spacing={3}>
-        <Grid item xs={1} md={4}>
-        <Button variant="contained" size="medium" onClick={submitaddress}>
-          Submit Address
-        </Button>
-        </Grid>
-        <Grid item xs={1} md={1}></Grid>
-        <Grid item xs={1} md={4}>
-        <Button variant="contained" size="medium" onClick={mintnft}>
-          Mint NFT
-        </Button>
-        </Grid>
-        </Grid>
-        <br/>
-        
-        </div>
-        </CardContent>
-        </Grid>
-        </Grid>
-        </CardActionArea>
-        </Card>
-        </Grid>
-        </Grid>
-        {/* <Box sx={{ flexGrow: 1 }} style={{paddingTop:100 }}>
-        
-          <Grid container spacing={2}>
+        <Grid container spacing={2}>
           <Grid item xs={1} md={2}>
           </Grid>
-          <Grid item xs={6} md={8}>
-            <Item>
+          <Grid item xs={1} md={8}>
             <Card>
               <CardActionArea>
-                
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    Choose a file to submit
-                  </Typography>
-                  
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                  <input required ref={register} type="file" name = "uploadedfile"/>
-                  <button> Submit </button>
-                  </form>
+                <Grid container spacing={2}>
+                  <Grid item xs={1} md={3}>
+                  </Grid>
+                  <Grid item xs={1} md={8}>
 
+                    <CardContent>
+                      <div style={{
+                        fontSize: "18px",
+                        color: "white"
+                      }}>
 
+                        <h3>
+                          Choose a File to submit
+                        </h3>
 
+                        <form>
+                          <input required ref={register} type="file" name="uploadedfile" />
+                          <Button variant="contained" component="span" onClick={handleSubmit(onSubmit)} style={{ textTransform: 'capitalize' }}>
+                            Submit
+                          </Button>
+                        </form>
 
-                  <Form {...layout} name="nest-messages" >
-                    
-                    <Form.Item
-                      name={['user', 'email']}
-                      label="Email"
-                      rules={[
-                        {
-                          type: 'email',
-                        },
-                      ]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    
-                    <Form.Item name={['user', 'website']} label="Website">
-                      <Input />
-                    </Form.Item>
-                    <Form.Item name={['user', 'introduction']} label="Introduction">
-                      <Input.TextArea />
-                    </Form.Item>
-                    <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-                      <Button type="primary" htmlType="submit">
-                        Submit
-                      </Button>
-                    </Form.Item>
-                  </Form>
-
-
-                  <MDBContainer>
-                  <MDBRow>
-                    <MDBCol md="6">
-                      <form>
-                        <p className="h4 text-center mb-4">Write to us</p>
-                        <label htmlFor="defaultFormContactNameEx" className="grey-text">
-                          Your name
-                        </label>
-                        <input type="text" id="defaultFormContactNameEx" className="form-control" />
-                        <br />
-                        <label htmlFor="defaultFormContactEmailEx" className="grey-text">
-                          Your email
-                        </label>
-                        <input type="email" id="defaultFormContactEmailEx" className="form-control" />
-                        <br />
-                        <label htmlFor="defaultFormContactSubjectEx" className="grey-text">
-                          Subject
-                        </label>
-                        <input type="text" id="defaultFormContactSubjectEx" className="form-control" />
-                        <br />
-                        <label htmlFor="defaultFormContactMessageEx" className="grey-text">
-                          Your message
-                        </label>
-                        <textarea type="text" id="defaultFormContactMessageEx" className="form-control" rows="3" />
-                        <div className="text-center mt-4">
-                                  <MDBBtn color="warning" outline type="submit">
-                                    Send
-                                    <MDBIcon far icon="paper-plane" className="ml-2" />
-                                  </MDBBtn>
-                                </div>
-                              </form>
-                            </MDBCol>
-                          </MDBRow>
-                        </MDBContainer>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  <br></br>
-                  IPFS Link &nbsp;&nbsp;
-                  <input type="text" onChange={sdata} />
-                  <br></br>
-                  Name of NFT &nbsp;&nbsp;
-                  <input type="text" onChange={sname} />
-                  <br></br>
-                  Description of NFT &nbsp;&nbsp;
-                  <input type="text" onChange={sdesc} />
                         <br></br>
-                  <br></br>
-                  <button onClick={submit}>Submit Metadata</button>
-                  <br></br>
-                  <button onClick={uplodmetadata}>Upload Metadata </button>
-                  <br></br>
-                  <br></br>
-                  <input type="text" onChange={getaddress} />
-                  <br></br>
-                  <button onClick={submitaddress}>Submit Address</button>
-                  <br></br>
-                  <br></br>
-                  <button onClick={mintnft}>Mint NFT </button>
-            
+                        <h3>IPFS Link</h3> &nbsp;&nbsp;
+                        <Input placeholder="IPFS Link" onChange={(e) => {
+                          setData(e.target.value);
+                          return setipfs(e.target.value);
+                        }} value={ipfslink} />
+                        <br></br>        <br />
+
+                        <h3>Name of NFT </h3>&nbsp;&nbsp;
+                        <Input placeholder="Name of NFT" onChange={sname} />
+                        <br></br>        <br />
+
+                        <h3>Description of NFT </h3>&nbsp;&nbsp;
+                        <Input placeholder="Description" onChange={sdesc} />
+
+                        <br></br>        <br />
+
+                        <br></br>
+                        <Grid container spacing={3}>
+                          <Grid item xs={1} md={4}>
+
+                            <Button variant="contained" size="medium" onClick={submit} style={{ textTransform: 'capitalize' }}>
+                              Submit Metadata
+                            </Button>
+                          </Grid>
+                          <Grid item xs={1} md={1}></Grid>
+                          <Grid item xs={1} md={4}>
+
+                            <Button variant="contained" size="medium" onClick={uplodmetadata} style={{ textTransform: 'capitalize' }}>
+                              Upload Metadata
+                            </Button>
+                          </Grid>
+                        </Grid>
+                        <br />
+
+                        <br></br>
+
+                        <Grid container spacing={3}>
+                          <Grid item xs={1} md={2}></Grid>
+                          <Grid item xs={1} md={4}>
+                            <a href="https://metamask.io/">
+                              <Button variant="contained" size="medium" style={{ textTransform: 'capitalize' }}>
+                                Create Metamask Wallet
+                              </Button>
+                            </a>
+                          </Grid>
+                          <Grid item xs={1} md={1}></Grid>
+
+                        </Grid>
 
 
+                      <br/>
 
-                </CardContent>
+                        <Grid container spacing={3}>
+                          <Grid item xs={1} md={2}></Grid>
+                          <Grid item xs={1} md={4}>
+                            <Input placeholder="Enter Wallet Address" onChange={getaddress} />
 
+                          </Grid>
+                          <Grid item xs={1} md={1}></Grid>
+
+                        </Grid>
+
+                        <br></br>        <br />
+                        <Grid container spacing={3}>
+                          <Grid item xs={1} md={4}>
+                            <Button variant="contained" size="medium" onClick={submitaddress} style={{ textTransform: 'capitalize' }}>
+                              Submit Address
+                            </Button>
+                          </Grid>
+                          <Grid item xs={1} md={1}></Grid>
+                          <Grid item xs={1} md={4}>
+                            <Button variant="contained" size="medium" onClick={mintnft} style={{ textTransform: 'capitalize' }}>
+                              Mint NFT
+                            </Button>
+                          </Grid>
+                        </Grid>
+                        <br />
+
+                      </div>
+                    </CardContent>
+                  </Grid>
+                </Grid>
               </CardActionArea>
             </Card>
-            </Item>
-
           </Grid>
-          <Grid item xs={6} md={4}>
-            <Item>xs=6 md=4</Item>
-          </Grid>
-          <Grid item xs={6} md={4}>
-            <Item>xs=6 md=4</Item>
-          </Grid>
-          <Grid item xs={6} md={8}>
-            <Item>xs=6 md=8</Item>
-          </Grid>
-          </Grid> 
-        </Box> */}
-
-
+        </Grid>
 
       </div>
+
+      <ToastContainer />
+
     </>
 
   );
