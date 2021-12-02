@@ -24,7 +24,6 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 
-
 const layout = {
   labelCol: {
     span: 8,
@@ -33,8 +32,6 @@ const layout = {
     span: 16,
   },
 };
-
-
 
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
@@ -53,7 +50,6 @@ function App() {
   const { register, handleSubmit } = useForm();
   const [ipfslink, setipfs] = useState(null);
 
-  const notify = () => toast("Please select a file to upload.");
 
   function sdata(event) {
     setData(event.target.value);
@@ -87,8 +83,17 @@ function App() {
     console.log(address);
   }
 
+  // Uploading File and Notiying
+
+  const notify0 = () => toast("Please wait.");
+  const notify = () => toast("Please select a file to upload.");
+  const notify1 = () => toast("The IPFS link is successfully retrieved.");
+  const notify2 = () => toast("Metadata successfully uploaded.");
+  const notify3 = () => toast("NFT mint was successful.");
+
 
   function UploadingFile(data) {
+    notify0();
     const form = new FormData();
     form.append("file", data.uploadedfile[0]);
 
@@ -105,12 +110,12 @@ function App() {
       .then(response => response.json())
       .then((response) => {
 
-        
+
         if (response.ipfs_url) {
 
           ipfs_url = response.ipfs_url;
           setipfs(ipfs_url);
-
+          notify1();
           return ipfs_url;
 
         } else {
@@ -151,6 +156,7 @@ function App() {
       // Displaying results to console
       .then((response) => {
         setmetaipfs(response.metadata_ipfs_uri);
+        notify2();
         console.log(response);
       })
 
@@ -181,6 +187,7 @@ function App() {
       // Displaying results to console
       .then((response) => {
         console.log(response);
+        notify3();
       })
 
       .catch((err) => console.error(err));
@@ -276,7 +283,7 @@ function App() {
       />
 
       <Header />  // Rendering the Header component for the application
-      <ToastContainer />
+
       // Rendering the complete form
 
       <div className="App-header">
@@ -300,11 +307,10 @@ function App() {
                         <h3>
                           Choose a File to submit
                         </h3>
-                        <br />
 
                         <form>
                           <input required ref={register} type="file" name="uploadedfile" />
-                          <Button variant="contained" component="span" onClick={handleSubmit(onSubmit)}>
+                          <Button variant="contained" component="span" onClick={handleSubmit(onSubmit)} style={{ textTransform: 'capitalize' }}>
                             Submit
                           </Button>
                         </form>
@@ -327,14 +333,14 @@ function App() {
                         <Grid container spacing={3}>
                           <Grid item xs={1} md={4}>
 
-                            <Button variant="contained" size="medium" onClick={submit}>
+                            <Button variant="contained" size="medium" onClick={submit} style={{ textTransform: 'capitalize' }}>
                               Submit Metadata
                             </Button>
                           </Grid>
                           <Grid item xs={1} md={1}></Grid>
                           <Grid item xs={1} md={4}>
 
-                            <Button variant="contained" size="medium" onClick={uplodmetadata}>
+                            <Button variant="contained" size="medium" onClick={uplodmetadata} style={{ textTransform: 'capitalize' }}>
                               Upload Metadata
                             </Button>
                           </Grid>
@@ -344,30 +350,41 @@ function App() {
                         <br></br>
 
                         <Grid container spacing={3}>
+                          <Grid item xs={1} md={2}></Grid>
+                          <Grid item xs={1} md={4}>
+                            <a href="https://metamask.io/">
+                              <Button variant="contained" size="medium" style={{ textTransform: 'capitalize' }}>
+                                Create Metamask Wallet
+                              </Button>
+                            </a>
+                          </Grid>
+                          <Grid item xs={1} md={1}></Grid>
+
+                        </Grid>
+
+
+                      <br/>
+
+                        <Grid container spacing={3}>
+                          <Grid item xs={1} md={2}></Grid>
                           <Grid item xs={1} md={4}>
                             <Input placeholder="Enter Wallet Address" onChange={getaddress} />
 
                           </Grid>
                           <Grid item xs={1} md={1}></Grid>
-                          <Grid item xs={1} md={4}>
-                            <a href="https://metamask.io/">
-                              <Button variant="contained" size="medium">
-                                Create Metamask Wallet
-                              </Button>
-                            </a>
-                          </Grid>
+
                         </Grid>
 
                         <br></br>        <br />
                         <Grid container spacing={3}>
                           <Grid item xs={1} md={4}>
-                            <Button variant="contained" size="medium" onClick={submitaddress}>
+                            <Button variant="contained" size="medium" onClick={submitaddress} style={{ textTransform: 'capitalize' }}>
                               Submit Address
                             </Button>
                           </Grid>
                           <Grid item xs={1} md={1}></Grid>
                           <Grid item xs={1} md={4}>
-                            <Button variant="contained" size="medium" onClick={mintnft}>
+                            <Button variant="contained" size="medium" onClick={mintnft} style={{ textTransform: 'capitalize' }}>
                               Mint NFT
                             </Button>
                           </Grid>
@@ -384,6 +401,9 @@ function App() {
         </Grid>
 
       </div>
+
+      <ToastContainer />
+
     </>
 
   );
