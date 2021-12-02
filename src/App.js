@@ -85,11 +85,19 @@ function App() {
 
   // Uploading File and Notiying
 
+  const CustomToastWithLink = () => (
+    <div>
+      <a href="https://opensea.io/collection/nft-minter-1">View it here.</a>
+    </div>
+  );
+
   const notify0 = () => toast("Please wait.");
   const notify = () => toast("Please select a file to upload.");
   const notify1 = () => toast("The IPFS link is successfully retrieved.");
   const notify2 = () => toast("Metadata successfully uploaded.");
   const notify3 = () => toast("NFT mint was successful.");
+  const notify4 = () => toast.info(CustomToastWithLink);
+
 
 
   function UploadingFile(data) {
@@ -115,17 +123,15 @@ function App() {
 
           ipfs_url = response.ipfs_url;
           setipfs(ipfs_url);
+          setData(ipfs_url)
           notify1();
           return ipfs_url;
 
         } else {
           notify();
-          console.log("hii");
-
         }
       })
       .catch(err => {
-        console.log("hiii");
         console.error(err);
       });
 
@@ -148,7 +154,7 @@ function App() {
       // Adding headers to the request
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        Authorization: "82d8af12-45c8-40d0-aced-2eac36fe0a3c",
+        Authorization: "d53eb35f-0b79-4a84-832c-8eb4d0086600",
       },
     })
       .then((response) => response.json())
@@ -171,7 +177,7 @@ function App() {
       // Adding body or contents to send
       body: JSON.stringify({
         chain: "polygon",
-        contract_address: "0xd1c3ae3aed7786394bdb5a42a81f0b0fb28f7983",
+        contract_address: "0x04d4621A026b9E6483904Cd2E63684314a77987F",
         metadata_uri: metaipfs,
         mint_to_address: address,
       }),
@@ -179,7 +185,7 @@ function App() {
       // Adding headers to the request
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        Authorization: "82d8af12-45c8-40d0-aced-2eac36fe0a3c",
+        Authorization: "d53eb35f-0b79-4a84-832c-8eb4d0086600",
       },
     })
       .then((response) => response.json())
@@ -188,6 +194,7 @@ function App() {
       .then((response) => {
         console.log(response);
         notify3();
+        notify4();
       })
 
       .catch((err) => console.error(err));
@@ -317,7 +324,10 @@ function App() {
 
                         <br></br>
                         <h3>IPFS Link</h3> &nbsp;&nbsp;
-                        <Input placeholder="IPFS Link" onChange={(e) => setipfs(e.target.value)} value={ipfslink} />
+                        <Input placeholder="IPFS Link" onChange={(e) => {
+                          setData(e.target.value);
+                          return setipfs(e.target.value);
+                        }} value={ipfslink} />
                         <br></br>        <br />
 
                         <h3>Name of NFT </h3>&nbsp;&nbsp;
